@@ -17,13 +17,13 @@ class BooksSpider(scrapy.Spider):
 
     def parse_book(self, response: scrapy.http.Response) -> BooksScraperItem:
         item = BooksScraperItem()
-        
+
         item["title"] = response.css("div.product_main h1::text").get()
-        item["price"] =  response.css("p.price_color::text").get().replace("£", "")
-        item["amount_in_stock"] = response.css("p.instock.availability::text").re_first("\d+") or "0"
-        item["rating"] = response.css("p.star-rating").attrib["class"].split()[1]
+        item["price"] =  float(response.css("p.price_color::text").get().replace("£", ""))
+        item["amount_in_stock"] = int(response.css("p.instock.availability::text").re_first("\d+") or "0")
+        item["rating"] = response.css("p.star-rating").attrib.get("class", "").split()[1]
         item["category"] = response.css("ul.breadcrumb li:nth-child(3) a::text").get()
         item["description"] = response.css("div#product_description + p::text").get()
         item["upc"] = response.css("table.table.table-striped tr:nth-child(1) td::text").get()
-        
+
         yield item
